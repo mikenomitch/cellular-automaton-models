@@ -1,6 +1,6 @@
 module Main where
 
-import Pong
+import Segregation
 
 main :: IO ()
-main = game
+main = showModel

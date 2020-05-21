@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f2a93464c94c46509c231af1e97399a6cfb535fea7647e390c8a9a80974d1c8e
+-- hash: 440928463c1dd4d9f32368a57f83096bf41e50760743cc0e445ed28c07e70c19
 
 name:           models
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Pong
+      Segregation
   other-modules:
       Paths_models
   hs-source-dirs:

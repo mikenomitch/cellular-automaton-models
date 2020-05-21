@@ -1,3 +1,8 @@
+-- This file is used to demo how Gloss works
+-- It is not one of the models
+-- Used for reference purposes only
+-- See https://andrew.gibiansky.com/blog/haskell/haskell-gloss/ for details
+
 module Pong(game) where
 
 import Graphics.Gloss
