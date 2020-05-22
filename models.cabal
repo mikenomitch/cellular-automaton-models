@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d30cd06533bd945ee921c93463ce9b09759b4be0b2d831f26d10fdbe73fbf29b
+-- hash: 14d9b07785e1734f65417b6e351aebe66f445100e992d41c99d941d51dc6de34
 
 name:           models
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
   build-depends:
       base >=4.7 && <5
     , gloss
+    , random
   default-language: Haskell2010
 
 executable models-exe
@@ -50,6 +51,7 @@ executable models-exe
       base >=4.7 && <5
     , gloss
     , models
+    , random
   default-language: Haskell2010
 
 test-suite models-test
@@ -64,4 +66,5 @@ test-suite models-test
       base >=4.7 && <5
     , gloss
     , models
+    , random
   default-language: Haskell2010

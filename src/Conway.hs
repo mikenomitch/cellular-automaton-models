@@ -2,10 +2,13 @@ module Conway(run) where
 
 -- IMPORTS
 
+import System.Random
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 
 -- DATA AND TYPES FOR DISPLAY
+
+title = "Conway's Game of Life"
 
 width, height, offset, fps :: Int
 width = 300
@@ -20,7 +23,7 @@ background :: Color
 background = white
 
 window :: Display
-window = InWindow "Conway" (width, height) (offset, offset)
+window = InWindow title (width, height) (offset, offset)
 
 -- DATA AND TYPES FOR MODELING
 
@@ -30,7 +33,6 @@ type Coordinate = (Int, Int)
 type Coordinates = [Coordinate]
 type Row = [Cell]
 type Board = [Row]
-type CellWithNeighborCount = (Cell, Int)
 
 -- GENERAL HELPERS
 
@@ -40,8 +42,8 @@ replaceNth idx val (hd:tail)
   | idx == 0 = val:tail
   | otherwise = hd:replaceNth (idx-1) val tail
 
-mapInd :: (a -> Int -> b) -> [a] -> [b]
-mapInd func list = zipWith func list [0..]
+mapWithIdx :: (a -> Int -> b) -> [a] -> [b]
+mapWithIdx func list = zipWith func list [0..]
 
 -- DOMAIN HELPERS
 
@@ -66,13 +68,13 @@ invalidCoordinate board (rowIdx, colIdx) = do
 
 -- SETUP
 
--- CHANGE HERE TO SEE DIFFERENT EVOLUTION
-makeSeeds :: Int -> Coordinates
-makeSeeds size = do
+addLife :: Int -> Int -> Int -> Coordinates
+addLife size lifePercentage seed = do
   [ (x,y) |
     x <- [0..(size -1)],
     y <- [0..(size - 1)],
-    x == 1 || y == 2]
+    r <- (take size (randoms (mkStdGen seed))),
+    (r `mod` 100) > lifePercentage]
 
 setValueAtCoordinate :: Board -> Coordinate -> Cell -> Board
 setValueAtCoordinate board (rowIdx, colIdx) value = do
@@ -88,10 +90,18 @@ setBoardLife :: Board -> Coordinates -> Board
 setBoardLife board coords = do
   foldl setRowLife board coords
 
-boardOfSize :: Int -> Board
-boardOfSize size = do
-  let blankRow = take size (repeat Dead)
-  take size (repeat blankRow)
+numToCell :: Int -> Int -> Cell
+numToCell percentageLife randomInt = if (abs (randomInt `mod` 100)) + 1 < percentageLife
+    then Living
+    else Dead
+
+randomRow :: Int -> Int -> Int -> Int -> Row
+randomRow size x seed percentageLife = map (numToCell percentageLife) randomList where
+    randomList = take size (randoms (mkStdGen (seed + x)))
+
+makeBoard :: Int -> Int -> Int -> Board
+makeBoard size seed percentageLife = do
+  [ randomRow size idx seed percentageLife | idx <- [0..size-1] ]
 
 -- LIFE CYCLES
 
@@ -114,7 +124,7 @@ neighborCount board (rowIdx, colIdx) = do
                               (rowIdx, colIdx + 1) ]
   length (filter (hasLife board) neighborCoordinates)
 
-nextValue :: CellWithNeighborCount -> Cell
+nextValue :: (Cell, Int) -> Cell
 nextValue (Living, 2) = Living
 nextValue (Living, 3) = Living
 nextValue (Dead, 3) = Living
@@ -154,11 +164,11 @@ cellPic :: Int -> Cell -> Int -> Picture
 cellPic y cell x = place x y (cellToSquare cell)
 
 rowPic :: Row -> Int -> Picture
-rowPic row x = pictures (mapInd iterator row)
+rowPic row x = pictures (mapWithIdx iterator row)
     where iterator = cellPic x
 
 draw :: Board -> Picture
-draw board = pictures (mapInd rowPic board)
+draw board = pictures (mapWithIdx rowPic board)
 
 handleInputNoop _ state = state
 
@@ -166,8 +176,13 @@ run :: IO ()
 run = do
   putStrLn "How large should the board be?"
   boardSize <- getLine
-  let blankBoard = boardOfSize (read boardSize)
-  let seedLife = makeSeeds (read boardSize)
-  let initialBoard = setBoardLife blankBoard seedLife
+
+  putStrLn "What percentage of spaces should have life?"
+  percentageLife <- getLine
+
+  putStrLn "What is your seed for pseudorandomness?"
+  seed <- getLine
+
+  let initialBoard = makeBoard (read boardSize) (read seed) (read percentageLife)
 
   play window background fps initialBoard draw handleInputNoop getNextBoard
