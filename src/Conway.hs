@@ -14,7 +14,7 @@ width, height, offset, fps :: Int
 width = 300
 height = 300
 offset = 100
-fps = 2
+fps = 1
 
 boxSize :: Float
 boxSize = 30
