@@ -1,6 +1,6 @@
 module Main where
 
-import Segregation
+import Conway
 
 main :: IO ()
-main = showModel
+main = playIt
