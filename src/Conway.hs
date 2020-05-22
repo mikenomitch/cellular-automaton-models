@@ -1,17 +1,19 @@
-module Conway(playIt) where
+module Conway(run) where
 
 -- IMPORTS
 
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 
--- VARS AND TYPES FOR DISPLAY
+-- DATA AND TYPES FOR DISPLAY
 
 width, height, offset, fps :: Int
 width = 300
 height = 300
 offset = 100
 fps = 2
+
+boxSize :: Float
 boxSize = 30
 
 background :: Color
@@ -20,7 +22,7 @@ background = white
 window :: Display
 window = InWindow "Conway" (width, height) (offset, offset)
 
--- VARS AND TYPES FOR MODELING
+-- DATA AND TYPES FOR MODELING
 
 data Cell = Living | Dead deriving Eq
 
@@ -29,8 +31,6 @@ type Coordinates = [Coordinate]
 type Row = [Cell]
 type Board = [Row]
 type CellWithNeighborCount = (Cell, Int)
-
-simulationState = []
 
 -- GENERAL HELPERS
 
@@ -138,45 +138,36 @@ getNextBoard something board = do
 
 -- DRAWING AND RENDERING
 
-rect :: Picture
-rect = rectangleSolid boxSize boxSize
+square :: Picture
+square = rectangleSolid boxSize boxSize
 
-blackRect :: Picture
-blackRect = color black rect
-
-redRect :: Picture
-redRect = color red rect
-
-rectForCell :: Cell -> Picture
-rectForCell Living = redRect
-rectForCell Dead = blackRect
+cellToSquare :: Cell -> Picture
+cellToSquare Living = color red square
+cellToSquare Dead = color black square
 
 place :: Int -> Int -> Picture -> Picture
 place x y pic = translate (xf * 10) (yf * 10) pic
   where xf = fromIntegral x :: Float
         yf = fromIntegral y :: Float
 
-spotPic :: Int -> Cell -> Int -> Picture
-spotPic y cell x = place x y (rectForCell cell)
+cellPic :: Int -> Cell -> Int -> Picture
+cellPic y cell x = place x y (cellToSquare cell)
 
 rowPic :: Row -> Int -> Picture
 rowPic row x = pictures (mapInd iterator row)
-    where iterator = spotPic x
+    where iterator = cellPic x
 
 draw :: Board -> Picture
 draw board = pictures (mapInd rowPic board)
 
-handleInput _ state = state
+handleInputNoop _ state = state
 
-update :: Float -> [a0] -> [a0]
-update seconds game = game
-
-playIt :: IO ()
-playIt = do
+run :: IO ()
+run = do
   putStrLn "How large should the board be?"
   boardSize <- getLine
   let blankBoard = boardOfSize (read boardSize)
   let seedLife = makeSeeds (read boardSize)
   let initialBoard = setBoardLife blankBoard seedLife
 
-  play window background fps initialBoard draw handleInput getNextBoard
+  play window background fps initialBoard draw handleInputNoop getNextBoard
