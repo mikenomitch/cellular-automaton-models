@@ -1,4 +1,4 @@
-module Util(replaceNth, mapWithIdx) where
+module Util(replaceNth, mapWithIdx, shuffle) where
 
 -- GENERAL HELPERS
 
@@ -10,3 +10,7 @@ replaceNth idx val (hd:tail)
 
 mapWithIdx :: (a -> Int -> b) -> [a] -> [b]
 mapWithIdx func list = zipWith func list [0..]
+
+-- TODO: Add a shuffle and apply it where necessary (emptries)
+shuffle :: [a] -> [a]
+shuffle list = list

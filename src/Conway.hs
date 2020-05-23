@@ -15,7 +15,7 @@ width, height, offset, fps :: Int
 width = 300
 height = 300
 offset = 0
-fps = 20
+fps = 5
 
 boxSize :: Float
 boxSize = 100
@@ -58,28 +58,6 @@ invalidCoordinate grid (rowIdx, colIdx) = do
 
 -- SETUP
 
-addLife :: Int -> Int -> Int -> Coordinates
-addLife size lifePercentage seed = do
-  [ (x,y) |
-    x <- [0..(size -1)],
-    y <- [0..(size - 1)],
-    r <- (take size (randoms (mkStdGen seed))),
-    (r `mod` 100) > lifePercentage]
-
-setValueAtCoordinate :: Grid -> Coordinate -> Cell -> Grid
-setValueAtCoordinate grid (rowIdx, colIdx) value = do
-  let row = grid!!rowIdx
-  let newRow = replaceNth colIdx value row
-  replaceNth rowIdx newRow grid
-
-setRowLife :: Grid -> Coordinate -> Grid
-setRowLife grid coordinate = do
-  setValueAtCoordinate grid coordinate Living
-
-setGridLife :: Grid -> Coordinates -> Grid
-setGridLife grid coords = do
-  foldl setRowLife grid coords
-
 numToCell :: Int -> Int -> Cell
 numToCell percentageLife randomInt = if (abs (randomInt `mod` 100)) + 1 < percentageLife
     then Living
@@ -95,16 +73,16 @@ makeGrid size seed percentageLife = do
 
 -- LIFE CYCLES
 
-valueAtCoordinate :: Grid -> Coordinate -> Cell
-valueAtCoordinate grid (rowIdx, colIdx) = do
-  (grid!!rowIdx)!!colIdx
+getCell :: Grid -> Coordinate -> Cell
+getCell grid (rowIdx, colIdx) =
+  grid!!rowIdx!!colIdx
 
 hasLife :: Grid -> Coordinate -> Bool
 hasLife grid coordinate = do
   if invalidCoordinate grid coordinate then
     False
   else
-    valueAtCoordinate grid coordinate == Living
+    getCell grid coordinate == Living
 
 neighborCount :: Grid -> Coordinate -> Int
 neighborCount grid (rowIdx, colIdx) = do
@@ -127,7 +105,7 @@ nextValue _        = Dead
 getNextValue :: Grid -> Coordinate -> Cell
 getNextValue grid coordinate = do
   let neighbors = neighborCount grid coordinate
-  let cell = valueAtCoordinate grid coordinate
+  let cell = getCell grid coordinate
   nextValue (cell, neighbors)
 
 getNextRow :: Grid -> Int -> Row

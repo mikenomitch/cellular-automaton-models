@@ -1,6 +1,6 @@
 module Main where
 
-import Conway
+import Schelling
 
 main :: IO ()
 main = run

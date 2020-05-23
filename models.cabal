@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9e345c35e4c7b3ee3700fec7fb8790811dd94c3526f8154b04dcf169db5da4cd
+-- hash: 16991716741f8cf43d7fd812c6c88d220736c6444c4c1ba8bab4e5d82aff4e76
 
 name:           models
 version:        0.1.0.0
@@ -30,8 +30,10 @@ library
       CentralLimit
       Conway
       Granovettor
+      GridRender
+      GridUtil
       Pong
-      Segregation
+      Schelling
       SixSigma
       StandingOvation
       Util
