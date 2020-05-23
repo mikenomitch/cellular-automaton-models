@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 14d9b07785e1734f65417b6e351aebe66f445100e992d41c99d941d51dc6de34
+-- hash: 9e345c35e4c7b3ee3700fec7fb8790811dd94c3526f8154b04dcf169db5da4cd
 
 name:           models
 version:        0.1.0.0
@@ -27,9 +27,14 @@ source-repository head
 
 library
   exposed-modules:
+      CentralLimit
       Conway
+      Granovettor
       Pong
       Segregation
+      SixSigma
+      StandingOvation
+      Util
   other-modules:
       Paths_models
   hs-source-dirs:

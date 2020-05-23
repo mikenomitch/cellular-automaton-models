@@ -2,6 +2,7 @@ module Conway(run) where
 
 -- IMPORTS
 
+import Util
 import System.Random
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
@@ -13,11 +14,11 @@ title = "Conway's Game of Life"
 width, height, offset, fps :: Int
 width = 300
 height = 300
-offset = 100
-fps = 1
+offset = 0
+fps = 20
 
 boxSize :: Float
-boxSize = 30
+boxSize = 100
 
 background :: Color
 background = white
@@ -32,39 +33,28 @@ data Cell = Living | Dead deriving Eq
 type Coordinate = (Int, Int)
 type Coordinates = [Coordinate]
 type Row = [Cell]
-type Board = [Row]
-
--- GENERAL HELPERS
-
-replaceNth :: Int -> a -> [a] -> [a]
-replaceNth _ _ [] = []
-replaceNth idx val (hd:tail)
-  | idx == 0 = val:tail
-  | otherwise = hd:replaceNth (idx-1) val tail
-
-mapWithIdx :: (a -> Int -> b) -> [a] -> [b]
-mapWithIdx func list = zipWith func list [0..]
+type Grid = [Row]
 
 -- DOMAIN HELPERS
 
-colBound :: Board -> Int
-colBound board = (length (board!!0)) - 1
+colBound :: Grid -> Int
+colBound grid = (length (grid!!0)) - 1
 
-rowBound :: Board -> Int
-rowBound board = (length board) - 1
+rowBound :: Grid -> Int
+rowBound grid = (length grid) - 1
 
 invalidIdx :: Int -> Int -> Bool
 invalidIdx bound val = val > bound || val < 0
 
-invalidRowIdx :: Board -> Int -> Bool
-invalidRowIdx board val = invalidIdx (rowBound board) val
+invalidRowIdx :: Grid -> Int -> Bool
+invalidRowIdx grid val = invalidIdx (rowBound grid) val
 
-invalidColIdx :: Board -> Int -> Bool
-invalidColIdx board val = invalidIdx (colBound board) val
+invalidColIdx :: Grid -> Int -> Bool
+invalidColIdx grid val = invalidIdx (colBound grid) val
 
-invalidCoordinate :: Board -> Coordinate -> Bool
-invalidCoordinate board (rowIdx, colIdx) = do
-  invalidRowIdx board rowIdx || invalidColIdx board colIdx
+invalidCoordinate :: Grid -> Coordinate -> Bool
+invalidCoordinate grid (rowIdx, colIdx) = do
+  invalidRowIdx grid rowIdx || invalidColIdx grid colIdx
 
 -- SETUP
 
@@ -76,19 +66,19 @@ addLife size lifePercentage seed = do
     r <- (take size (randoms (mkStdGen seed))),
     (r `mod` 100) > lifePercentage]
 
-setValueAtCoordinate :: Board -> Coordinate -> Cell -> Board
-setValueAtCoordinate board (rowIdx, colIdx) value = do
-  let row = board!!rowIdx
+setValueAtCoordinate :: Grid -> Coordinate -> Cell -> Grid
+setValueAtCoordinate grid (rowIdx, colIdx) value = do
+  let row = grid!!rowIdx
   let newRow = replaceNth colIdx value row
-  replaceNth rowIdx newRow board
+  replaceNth rowIdx newRow grid
 
-setRowLife :: Board -> Coordinate -> Board
-setRowLife board coordinate = do
-  setValueAtCoordinate board coordinate Living
+setRowLife :: Grid -> Coordinate -> Grid
+setRowLife grid coordinate = do
+  setValueAtCoordinate grid coordinate Living
 
-setBoardLife :: Board -> Coordinates -> Board
-setBoardLife board coords = do
-  foldl setRowLife board coords
+setGridLife :: Grid -> Coordinates -> Grid
+setGridLife grid coords = do
+  foldl setRowLife grid coords
 
 numToCell :: Int -> Int -> Cell
 numToCell percentageLife randomInt = if (abs (randomInt `mod` 100)) + 1 < percentageLife
@@ -99,30 +89,34 @@ randomRow :: Int -> Int -> Int -> Int -> Row
 randomRow size x seed percentageLife = map (numToCell percentageLife) randomList where
     randomList = take size (randoms (mkStdGen (seed + x)))
 
-makeBoard :: Int -> Int -> Int -> Board
-makeBoard size seed percentageLife = do
+makeGrid :: Int -> Int -> Int -> Grid
+makeGrid size seed percentageLife = do
   [ randomRow size idx seed percentageLife | idx <- [0..size-1] ]
 
 -- LIFE CYCLES
 
-valueAtCoordinate :: Board -> Coordinate -> Cell
-valueAtCoordinate board (rowIdx, colIdx) = do
-  (board!!rowIdx)!!colIdx
+valueAtCoordinate :: Grid -> Coordinate -> Cell
+valueAtCoordinate grid (rowIdx, colIdx) = do
+  (grid!!rowIdx)!!colIdx
 
-hasLife :: Board -> Coordinate -> Bool
-hasLife board coordinate = do
-  if invalidCoordinate board coordinate then
+hasLife :: Grid -> Coordinate -> Bool
+hasLife grid coordinate = do
+  if invalidCoordinate grid coordinate then
     False
   else
-    valueAtCoordinate board coordinate == Living
+    valueAtCoordinate grid coordinate == Living
 
-neighborCount :: Board -> Coordinate -> Int
-neighborCount board (rowIdx, colIdx) = do
+neighborCount :: Grid -> Coordinate -> Int
+neighborCount grid (rowIdx, colIdx) = do
   let neighborCoordinates = [ (rowIdx - 1, colIdx),
                               (rowIdx + 1, colIdx),
                               (rowIdx, colIdx - 1),
-                              (rowIdx, colIdx + 1) ]
-  length (filter (hasLife board) neighborCoordinates)
+                              (rowIdx, colIdx + 1),
+                              (rowIdx + 1, colIdx + 1),
+                              (rowIdx - 1, colIdx + 1),
+                              (rowIdx - 1, colIdx - 1),
+                              (rowIdx + 1, colIdx - 1)]
+  length (filter (hasLife grid) neighborCoordinates)
 
 nextValue :: (Cell, Int) -> Cell
 nextValue (Living, 2) = Living
@@ -130,21 +124,21 @@ nextValue (Living, 3) = Living
 nextValue (Dead, 3) = Living
 nextValue _        = Dead
 
-getNextValue :: Board -> Coordinate -> Cell
-getNextValue board coordinate = do
-  let neighbors = neighborCount board coordinate
-  let cell = valueAtCoordinate board coordinate
+getNextValue :: Grid -> Coordinate -> Cell
+getNextValue grid coordinate = do
+  let neighbors = neighborCount grid coordinate
+  let cell = valueAtCoordinate grid coordinate
   nextValue (cell, neighbors)
 
-getNextRow :: Board -> Int -> Row
-getNextRow board rowIdx = do
-  [ getNextValue board (rowIdx, colIdx) |
-    colIdx <- [0..(colBound board)] ]
+getNextRow :: Grid -> Int -> Row
+getNextRow grid rowIdx = do
+  [ getNextValue grid (rowIdx, colIdx) |
+    colIdx <- [0..(colBound grid)] ]
 
-getNextBoard :: Float -> Board -> Board
-getNextBoard something board = do
-  [ getNextRow board rowIdx |
-    rowIdx <- [0..(rowBound board)] ]
+getNextGrid :: Float -> Grid -> Grid
+getNextGrid something grid = do
+  [ getNextRow grid rowIdx |
+    rowIdx <- [0..(rowBound grid)] ]
 
 -- DRAWING AND RENDERING
 
@@ -167,15 +161,15 @@ rowPic :: Row -> Int -> Picture
 rowPic row x = pictures (mapWithIdx iterator row)
     where iterator = cellPic x
 
-draw :: Board -> Picture
-draw board = pictures (mapWithIdx rowPic board)
+draw :: Grid -> Picture
+draw grid = pictures (mapWithIdx rowPic grid)
 
 handleInputNoop _ state = state
 
 run :: IO ()
 run = do
-  putStrLn "How large should the board be?"
-  boardSize <- getLine
+  putStrLn "How large should the grid be?"
+  gridSize <- getLine
 
   putStrLn "What percentage of spaces should have life?"
   percentageLife <- getLine
@@ -183,6 +177,6 @@ run = do
   putStrLn "What is your seed for pseudorandomness?"
   seed <- getLine
 
-  let initialBoard = makeBoard (read boardSize) (read seed) (read percentageLife)
+  let initialGrid = makeGrid (read gridSize) (read seed) (read percentageLife)
 
-  play window background fps initialBoard draw handleInputNoop getNextBoard
+  play window background fps initialGrid draw handleInputNoop getNextGrid
