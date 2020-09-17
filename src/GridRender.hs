@@ -23,7 +23,7 @@ place x y pic = translate (xf * 10) (yf * 10) pic
         yf = fromIntegral y :: Float
 
 cellPic :: Int -> Cell -> Int -> Picture
-cellPic y cell x = place x y (cellToSquare cell)
+cellPic x cell y = place x y (cellToSquare cell)
 
 rowPic :: Row -> Int -> Picture
 rowPic row x = pictures (mapWithIdx iterator row)

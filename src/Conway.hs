@@ -89,11 +89,7 @@ neighborCount grid (rowIdx, colIdx) = do
   let neighborCoordinates = [ (rowIdx - 1, colIdx),
                               (rowIdx + 1, colIdx),
                               (rowIdx, colIdx - 1),
-                              (rowIdx, colIdx + 1),
-                              (rowIdx + 1, colIdx + 1),
-                              (rowIdx - 1, colIdx + 1),
-                              (rowIdx - 1, colIdx - 1),
-                              (rowIdx + 1, colIdx - 1)]
+                              (rowIdx, colIdx + 1)]
   length (filter (hasLife grid) neighborCoordinates)
 
 nextValue :: (Cell, Int) -> Cell

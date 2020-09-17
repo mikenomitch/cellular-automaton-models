@@ -10,18 +10,24 @@ import Util
 import GridUtil
 import GridRender
 
+-- TODO
+-- Fix the move function (100,50,10,1,1)
+-- Fix the shuffle
+-- Fix how small boxes render
+-- Change Chars to Types
+
 -- VARS AND TYPES FOR DISPLAY
 
 title = "Schelling's Segregation Model"
 
 width, height, offset, fps :: Int
-width = 300
-height = 300
-offset = 100
+width = 500
+height = 500
+offset = 0
 fps = 2
 
 background :: Color
-background = white
+background = black
 
 window :: Display
 window = InWindow title (width, height) (offset, offset)
@@ -52,7 +58,7 @@ neighborOfSameType grid comparisonCell coord = do
   if invalidCoordinate grid coord then
     False
   else
-    (getCell grid coord) == comparisonCell
+    (getCell grid coord) == comparisonCell || (getCell grid coord) == 'E'
 
 similarNeighborCount :: Grid -> Coordinate -> Int
 similarNeighborCount grid (rowIdx, colIdx) = do
@@ -77,6 +83,7 @@ moveToEmptyCell :: Grid -> Coordinate -> Grid
 moveToEmptyCell grid moverCoord = do
   let emptiesList = shuffle (matchingCoordinates isEmpty grid)
   let emptyCoordinate = (head emptiesList)
+
   swapValuesAtCoordinates grid moverCoord emptyCoordinate
 
 getNextGridState :: Int -> Float -> Grid -> Grid
@@ -85,29 +92,28 @@ getNextGridState moveThreshold _ grid = do
 
 -- DRAWING AND RENDERING
 
-draw :: Grid -> Picture
-draw grid = drawGrid grid
-
 handleInputNoop _ state = state
 
 run :: IO ()
 run = do
-  putStrLn "How large should the grid be?"
-  gridSize <- getLine
+  -- putStrLn "How large should the grid be?"
+  -- gridSize <- getLine
 
-  putStrLn "What percentage of spaces should be red vs green?"
-  redGreenRatio <- getLine
+  -- putStrLn "What percentage of spaces should be red vs green?"
+  -- redGreenRatio <- getLine
 
-  putStrLn "What percentage of spaces should be empty?"
-  emptyPercentage <- getLine
+  -- putStrLn "What percentage of spaces should be empty?"
+  -- emptyPercentage <- getLine
 
-  putStrLn "How many similar neighbords does a cell need to stay?"
-  moveThreshold <- getLine
+  -- putStrLn "How many similar neighbords does a cell need to stay?"
+  -- moveThreshold <- getLine
 
-  putStrLn "What is your seed for pseudorandomness?"
-  seed <- getLine
+  -- putStrLn "What is your seed for pseudorandomness?"
+  -- seed <- getLine
 
-  let initialGrid = makeGrid (read gridSize) (read seed) (read redGreenRatio) (read emptyPercentage)
-  let getNextStateFn = getNextGridState (read moveThreshold)
+  -- let initialGrid = makeGrid (read gridSize) (read seed) (read redGreenRatio) (read emptyPercentage)
+  -- let getNextStateFn = getNextGridState (read moveThreshold)
+  let initialGrid = makeGrid 100 1 50 10
+  let getNextStateFn = getNextGridState 1
 
-  play window background fps initialGrid draw handleInputNoop getNextStateFn
+  play window background fps initialGrid drawGrid handleInputNoop getNextStateFn

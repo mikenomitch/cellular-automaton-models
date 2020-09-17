@@ -11,6 +11,6 @@ replaceNth idx val (hd:tail)
 mapWithIdx :: (a -> Int -> b) -> [a] -> [b]
 mapWithIdx func list = zipWith func list [0..]
 
--- TODO: Add a shuffle and apply it where necessary (emptries)
+-- TODO: Add a shuffle and apply it where necessary
 shuffle :: [a] -> [a]
 shuffle list = list

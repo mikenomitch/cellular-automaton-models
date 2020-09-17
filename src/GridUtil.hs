@@ -57,19 +57,15 @@ swapValuesAtCoordinates :: Grid -> Coordinate -> Coordinate -> Grid
 swapValuesAtCoordinates grid coordA coordB = do
   let valA = getCell grid coordA
   let valB = getCell grid coordB
-  let grid' = setValueAtCoordinate grid coordA valB
-  setValueAtCoordinate grid' coordB valA
+  let tmpGrid = (setValueAtCoordinate grid coordA valB)
+  setValueAtCoordinate tmpGrid coordB valA
 
 getNeighborCoordinates :: Coordinate -> Coordinates
 getNeighborCoordinates (rowIdx, colIdx) = do
   [ (rowIdx - 1, colIdx),
     (rowIdx + 1, colIdx),
     (rowIdx, colIdx - 1),
-    (rowIdx, colIdx + 1),
-    (rowIdx + 1, colIdx + 1),
-    (rowIdx - 1, colIdx + 1),
-    (rowIdx - 1, colIdx - 1),
-    (rowIdx + 1, colIdx - 1)]
+    (rowIdx, colIdx + 1)]
 
 findRowMatchingCoords :: CoordinateTester -> Grid -> Row -> Int -> Coordinates
 findRowMatchingCoords testFn grid row rowIdx = filter (testFn grid) coordinatesForRow where
