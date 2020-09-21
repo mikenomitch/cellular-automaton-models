@@ -2,7 +2,7 @@
 
 Schelling's Segregation Model and Conways Game of Life visualizations written in Haskell. Potentially more to come.
 
-TODO: ADD LINK TO ASSET
+![](./assets/schelling.png)
 
 (Pictured: a visualization of an early stage in Schelling's Segregation Model)
 
