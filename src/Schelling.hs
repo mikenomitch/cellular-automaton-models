@@ -113,7 +113,8 @@ run = do
 
   -- let initialGrid = makeGrid (read gridSize) (read seed) (read redGreenRatio) (read emptyPercentage)
   -- let getNextStateFn = getNextGridState (read moveThreshold)
-  let initialGrid = makeGrid 100 1 50 10
+  -- let initialGrid = makeGrid 100 1 50 10
+  let initialGrid = makeGrid 100 1 50 30
   let getNextStateFn = getNextGridState 1
 
   play window background fps initialGrid drawGrid handleInputNoop getNextStateFn

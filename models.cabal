@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 16991716741f8cf43d7fd812c6c88d220736c6444c4c1ba8bab4e5d82aff4e76
+-- hash: 82ef1e0857971260b8b464b773f0f6d8a98197a5d537cc054b73fda43557914d
 
 name:           models
 version:        0.1.0.0
@@ -27,14 +27,12 @@ source-repository head
 
 library
   exposed-modules:
-      CentralLimit
       Conway
       Granovettor
       GridRender
       GridUtil
       Pong
       Schelling
-      SixSigma
       StandingOvation
       Util
   other-modules:
